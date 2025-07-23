@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Predict from "./pages/Predict";
+import DataExplorer from "./pages/DataExplorer";
 
 const App = () => (
   <BrowserRouter>
@@ -17,17 +18,6 @@ const App = () => (
       </main>
     </div>
   </BrowserRouter>
-);
-
-const DataExplorer = () => (
-  <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-    <div className="text-center">
-      <h2 className="text-3xl font-bold text-gray-900">Data Explorer</h2>
-      <p className="mt-4 text-lg text-gray-600">
-        Data exploration features coming soon...
-      </p>
-    </div>
-  </div>
 );
 
 const NotFound = () => (
