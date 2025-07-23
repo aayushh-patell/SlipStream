@@ -3,6 +3,7 @@ import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Predict from "./pages/Predict";
 import DataExplorer from "./pages/DataExplorer";
+import About from "./pages/About";
 
 const App = () => (
   <BrowserRouter>
@@ -13,6 +14,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/predict" element={<Predict />} />
           <Route path="/data" element={<DataExplorer />} />
+          <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
