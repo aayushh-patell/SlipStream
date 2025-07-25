@@ -1,10 +1,23 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader, Trophy, Clock } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { api, type PredictionRequest, type PredictionResult } from "../services/api";
 
 const Predict = () => {
   const [selectedCircuit, setSelectedCircuit] = useState("");
   const [selectedDriver, setSelectedDriver] = useState("");
-  const [weatherConditions, setWeatherConditions] = useState("");
+  const [weatherConditions, setWeatherConditions] = useState<"dry" | "light_rain" | "heavy_rain">("dry");
+  const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null);
+
+  const predictionMutation = useMutation({
+    mutationFn: (request: PredictionRequest) => api.generatePrediction(request),
+    onSuccess: (result) => {
+      setPredictionResult(result);
+    },
+    onError: (error) => {
+      console.error('Prediction failed:', error);
+    },
+  });
 
   const circuits = [
     "Bahrain International Circuit",
@@ -42,8 +55,14 @@ const Predict = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement prediction logic
-    console.log("Prediction requested:", { selectedCircuit, selectedDriver, weatherConditions });
+    
+    const request: PredictionRequest = {
+      circuitId: selectedCircuit,
+      driverId: selectedDriver,
+      weatherConditions: weatherConditions as "dry" | "light_rain" | "heavy_rain",
+    };
+    
+    predictionMutation.mutate(request);
   };
 
   return (
@@ -112,18 +131,22 @@ const Predict = () => {
                 Weather Conditions
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {["Dry", "Light Rain", "Heavy Rain"].map((condition) => (
-                  <label key={condition} className="flex items-center">
+                {[
+                  { value: "dry", label: "Dry" },
+                  { value: "light_rain", label: "Light Rain" },
+                  { value: "heavy_rain", label: "Heavy Rain" }
+                ].map((condition) => (
+                  <label key={condition.value} className="flex items-center">
                     <input
                       type="radio"
                       name="weather"
-                      value={condition}
-                      checked={weatherConditions === condition}
-                      onChange={(e) => setWeatherConditions(e.target.value)}
+                      value={condition.value}
+                      checked={weatherConditions === condition.value}
+                      onChange={(e) => setWeatherConditions(e.target.value as "dry" | "light_rain" | "heavy_rain")}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       required
                     />
-                    <span className="ml-2 text-sm text-gray-700">{condition}</span>
+                    <span className="ml-2 text-sm text-gray-700">{condition.label}</span>
                   </label>
                 ))}
               </div>
@@ -133,20 +156,89 @@ const Predict = () => {
             <div className="pt-6">
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                disabled={predictionMutation.isPending}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Generate Prediction
+                {predictionMutation.isPending ? (
+                  <>
+                    <Loader className="animate-spin h-4 w-4 mr-2" />
+                    Generating Prediction...
+                  </>
+                ) : (
+                  'Generate Prediction'
+                )}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Results Placeholder */}
+        {/* Results Section */}
         <div className="mt-8 bg-white rounded-lg shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Prediction Results</h2>
-          <p className="text-gray-600">
-            Submit the form above to see AI-powered race predictions based on historical data and current conditions.
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Prediction Results</h2>
+          
+          {predictionResult ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <Trophy className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">Predicted Position</p>
+                  <p className="text-2xl font-bold text-blue-600">P{predictionResult.position}</p>
+                </div>
+                
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-green-600 text-2xl font-bold mb-2">
+                    {Math.round(predictionResult.probability * 100)}%
+                  </div>
+                  <p className="text-sm text-gray-600">Win Probability</p>
+                </div>
+                
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <Clock className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">Est. Lap Time</p>
+                  <p className="text-lg font-semibold text-purple-600">
+                    {predictionResult.estimatedLapTime || 'N/A'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Prediction Factors</h3>
+                <div className="space-y-3">
+                  {Object.entries(predictionResult.factors).map(([factor, value]) => (
+                    <div key={factor} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 capitalize">
+                        {factor.replace('_', ' ')}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${value * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {Math.round(value * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600">
+                  <strong>Confidence Level:</strong> {Math.round(predictionResult.confidence * 100)}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  This prediction is based on historical race data, driver performance, and current conditions.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-600">
+              Submit the form above to see AI-powered race predictions based on historical data and current conditions.
+            </p>
+          )}
         </div>
       </div>
     </div>

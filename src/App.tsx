@@ -1,25 +1,30 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Predict from "./pages/Predict";
 import DataExplorer from "./pages/DataExplorer";
 import About from "./pages/About";
 
+const queryClient = new QueryClient();
+
 const App = () => (
-  <BrowserRouter>
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Navigation />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/predict" element={<Predict />} />
-          <Route path="/data" element={<DataExplorer />} />
-          <Route path="/about" element={<About />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </div>
-  </BrowserRouter>
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Navigation />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/predict" element={<Predict />} />
+            <Route path="/data" element={<DataExplorer />} />
+            <Route path="/about" element={<About />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 const NotFound = () => (
