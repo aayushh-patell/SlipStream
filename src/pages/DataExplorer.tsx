@@ -1,20 +1,54 @@
-import { BarChart3, TrendingUp, Database, Filter } from "lucide-react";
+import { BarChart3, TrendingUp, Database, Filter, AlertCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../services/api";
+import { LoadingState } from "../components/ui/loading";
+import { Alert, AlertDescription } from "../components/ui/alert";
 
 const DataExplorer = () => {
-  const mockData = [
-    { circuit: "Monaco", avgLapTime: "1:12.456", winner: "Max Verstappen", year: 2024 },
-    { circuit: "Silverstone", avgLapTime: "1:27.123", winner: "Lewis Hamilton", year: 2024 },
-    { circuit: "Spa-Francorchamps", avgLapTime: "1:44.567", winner: "Charles Leclerc", year: 2024 },
-    { circuit: "Monza", avgLapTime: "1:20.890", winner: "Oscar Piastri", year: 2024 },
-    { circuit: "Suzuka", avgLapTime: "1:30.234", winner: "Max Verstappen", year: 2024 },
-  ];
+  const { 
+    data: raceData, 
+    isLoading: raceLoading, 
+    error: raceError 
+  } = useQuery({
+    queryKey: ['raceData'],
+    queryFn: () => api.getRaceData(),
+  });
 
-  const stats = [
-    { label: "Total Races Analyzed", value: "312", icon: Database },
-    { label: "Prediction Accuracy", value: "89.3%", icon: TrendingUp },
-    { label: "Active Drivers", value: "20", icon: BarChart3 },
-    { label: "Circuits Covered", value: "23", icon: Filter },
-  ];
+  const { 
+    data: statistics, 
+    isLoading: statsLoading, 
+    error: statsError 
+  } = useQuery({
+    queryKey: ['statistics'],
+    queryFn: () => api.getStatistics(),
+  });
+
+  const stats = statistics ? [
+    { label: "Total Races Analyzed", value: statistics.totalRaces.toString(), icon: Database },
+    { label: "Prediction Accuracy", value: `${statistics.predictionAccuracy}%`, icon: TrendingUp },
+    { label: "Active Drivers", value: statistics.activeDrivers.toString(), icon: BarChart3 },
+    { label: "Circuits Covered", value: statistics.circuitsCovered.toString(), icon: Filter },
+  ] : [];
+
+  if (statsLoading || raceLoading) {
+    return <LoadingState message="Loading race data and statistics..." />;
+  }
+
+  const hasError = statsError || raceError;
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Failed to load data. Please try again later.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
@@ -74,22 +108,30 @@ const DataExplorer = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {mockData.map((race, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {race.circuit}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {race.avgLapTime}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {race.winner}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {race.year}
+                {raceData && raceData.length > 0 ? (
+                  raceData.map((race, index) => (
+                    <tr key={race.id || index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {race.circuit}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {race.avgLapTime}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {race.winner}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(race.date).getFullYear()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                      No race data available
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
