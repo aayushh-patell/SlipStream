@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ChevronDown, Loader, Trophy, Clock } from "lucide-react";
+import { ChevronDown, Trophy, Clock } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { api, type PredictionRequest, type PredictionResult } from "../services/api";
+import { Alert } from '../components/ui/alert';
+import { LoadingSpinner } from '../components/ui/loading';
 
 const Predict = () => {
   const [selectedCircuit, setSelectedCircuit] = useState("");
@@ -161,7 +163,7 @@ const Predict = () => {
               >
                 {predictionMutation.isPending ? (
                   <>
-                    <Loader className="animate-spin h-4 w-4 mr-2" />
+                    <LoadingSpinner size="sm" />
                     Generating Prediction...
                   </>
                 ) : (
@@ -175,6 +177,19 @@ const Predict = () => {
         {/* Results Section */}
         <div className="mt-8 bg-white rounded-lg shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Prediction Results</h2>
+          
+          {predictionMutation.error && (
+            <Alert variant="destructive" className="mb-6">
+              <strong>Prediction Error:</strong> Unable to generate prediction. Please try again with different parameters.
+            </Alert>
+          )}
+          
+          {predictionMutation.isPending && (
+            <div className="flex items-center justify-center py-12">
+              <LoadingSpinner size="lg" />
+              <span className="ml-3 text-gray-600">Analyzing race conditions...</span>
+            </div>
+          )}
           
           {predictionResult ? (
             <div className="space-y-6">

@@ -1,3 +1,4 @@
+import React from "react";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -88,4 +89,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default React.memo(Home);
