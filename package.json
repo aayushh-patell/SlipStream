@@ -1,8 +1,12 @@
 {
   "name": "slipstream",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "AI-powered Formula 1 race prediction platform",
+  "keywords": ["formula1", "f1", "racing", "predictions", "ai", "react", "typescript"],
+  "author": "SlipStream Team",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
