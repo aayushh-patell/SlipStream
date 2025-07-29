@@ -2,4 +2,20 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://slipstream-f1.app/sitemap.xml
+Sitemap: https://slipstream.racing/sitemap.xml
+
+# Crawl-delay for respectful crawling  
+Crawl-delay: 1
+
+# Allow all main content for search engines
+Allow: /predict
+Allow: /data
+Allow: /about
+
+# Disallow admin or private areas (if any)
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Host specification
+Host: slipstream.racing
