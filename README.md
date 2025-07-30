@@ -1,13 +1,6 @@
 # SlipStream - F1 Race Prediction Platform
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/aayushh-patell/SlipStream)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/aayushh-patell/SlipStream/releases)
-[![Deploy](https://img.shields.io/badge/deploy-ready-success.svg)](https://slipstream.racing)
-
-SlipStream is an advanced Formula 1 race prediction platform that leverages machine learning algorithms and comprehensive race data to provide accurate race outcome predictions. Built with modern web technologies for optimal performance and user experience.
+SlipStream is a Formula 1 race prediction platform that leverages machine learning algorithms and comprehensive race data to provide accurate race outcome predictions.
 
 ## 🏎️ Features
 
